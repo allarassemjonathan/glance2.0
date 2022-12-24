@@ -12,7 +12,41 @@
     <title>Profile</title>
 </head>
 <body>
-    {{student.name.split()[1]}} {{student.name.split()[2][0]}}. {{student.name.split()[0][1:-1]}} is a student from {{student.town}}, {{student.state}}. 
+    <h2>
+        Profile
+    </h2>
+    {%if student.name.split()[2]%}
+        Name: {{student.name.split()[1]}} {{student.name.split()[2]}} {{student.name.split()[0][1:-1]}}
+    {%else%}
+        Name: {{student.name.split()[1]}} {{student.name.split()[0][1:-1]}}
+    {%endif%}
+    <br>
+    Email: {{student.email[:-1]}}
+    <br>
+    Year:  {{dic[student.year]}} student
+    <br>
+    Room:  {{dorms[student.room[0:2]]}} Room {{student.room[2:]}}
+    <br>
+    {%if student.state =='nan' %}
+        Origin: International student from {{student.town}}
+    {%else%}
+        Origin: {{student.town}}, {{student.state}}
+    {%endif%}
+    <br>
+    Roomates:
+    {% for roomate in roomates%}
+        {%if roomate.name!=student.name%}
+            <a href="{{ url_for('get_profile', name=roomate.name)}}"> 
+                {%if roomate.name.split()[2]%}
+                    {{roomate.name.split()[1]}} {{roomate.name.split()[2]}} {{roomate.name.split()[0][1:-1]}}
+                {%else%}
+                    {{roomate.name.split()[1]}} {{roomate.name.split()[0][1:-1]}}
+                {%endif%}
+            </a>
+            <br>
+        {%endif%}
+    {%endfor%}
+     
 </body>
 <br>
 <a href="{{url_for('get_home')}}"> Back to search</a>

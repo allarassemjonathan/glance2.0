@@ -12,17 +12,24 @@
     <title>Results</title>
 </head>
 <body>
-    {% if students is not none%}
-        <h2>Matching profiles</h2>
+    {% if students%}
+        <h2> {{length}} Matching profiles</h2>
         {%for student in students%}
             <div>
                 <a href="{{ url_for('get_profile', name=student.name)}}">
-                    {{student.name.split()[1]}} {{student.name.split()[2][0]}}. {{student.name.split()[0][1:-1]}}
+                    {%if student.name.split()[2]%}
+                        {{student.name.split()[1]}} {{student.name.split()[2][0]}}. {{student.name.split()[0][1:-1]}}
+                    {%else%}
+                        {{student.name.split()[1]}} x. {{student.name.split()[0][1:-1]}}
+                    {%endif%}
                 </a> 
             </div>
         {%endfor%}
     {%else%}
         no results found
     {%endif%}
+    <br>
+    <br>
+    <a href="{{url_for('get_home')}}"> Back to search</a>
 </body>
 </html>
