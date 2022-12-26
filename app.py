@@ -2,6 +2,8 @@ from flask import Flask, request, render_template, redirect, url_for, abort
 from forms import question
 import pandas as pd
 from student import student
+import os 
+import re
 
 app = Flask(__name__)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
@@ -14,7 +16,13 @@ df.columns = ['name', 'year', 'room', 'mailroom', 'town', 'state', 'email']
 @app.route('/', methods=["GET"])
 def get_home():
     form = question()
-    return render_template('home.html', form=form)
+    charts = []
+    for file in os.listdir('./static/'):
+        print(file)
+        if re.search('_chart', file):
+            charts.append(file)
+    print(charts)
+    return render_template('home.html', form=form, charts=charts)
 
 @app.route('/', methods=["POST"])
 def post_home():
@@ -64,3 +72,7 @@ def get_roomates(room):
     for index, row in frame.iterrows():
         students.append(student(row['name'], row['year'], row['town'], row['state'], row['email'], row['mailroom'], row['room']))
     return students
+
+@app.route('/population/<string:population>')
+def get_population(population):
+    return render_template('populations.html', population=population)

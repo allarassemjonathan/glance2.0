@@ -7,13 +7,36 @@
     <title>Home</title>
 </head>
 <body>
-
-    <div class="row" style="display:flex; justify-content: center; margin-top: 0px;">
+    <div style="display:flex; justify-content: center; margin-top: 0px;">
+        Find your friends
+    </div>
+    <br>
+    <div class="row" style="display:flex; justify-content: center; margin-top: 0px;">       
         <form method="POST">
             {{form.hidden_tag()}}
             {{form.field()}}
             {{form.submit()}}
         </form>
     </div>
+    <br>
+    <br>
+    <div style="display:flex; justify-content: center; margin-top: 0px;">
+        <br>
+        <div>
+            <a href=""> Learn about the student population here</a>
+        </div>
+        <br>
+    </div>
+    <br>
+    {% for chart in charts%}
+    <div style="display:flex; justify-content: center; margin-top: 0px;">
+        <a href="{{url_for('get_population', population=chart.split('_')[0])}}">Learn about students from {{chart.split('_')[0]}}</a>
+    </div>
+    <br>
+    <div style="display:flex; justify-content: center; margin-top: 0px;">
+        <img src="/static/{{chart}}" alt="Pie chart of student population" width="600", height="400" >
+    </div>
+    <br>
+    {% endfor%}
 </body>
 </html>
