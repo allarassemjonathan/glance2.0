@@ -34,6 +34,7 @@
     {%endif%}
     <br>
     Roomates:
+    {% if roomates %}
     {% for roomate in roomates%}
         {%if roomate.name!=student.name%}
             <a href="{{ url_for('get_profile', name=roomate.name)}}"> 
@@ -46,7 +47,9 @@
             <br>
         {%endif%}
     {%endfor%}
-     
+    {%else%}
+            {{student.name.split()[1]}} lives in a single not tied to a suite.
+    {%endif%} 
 </body>
 <br>
 <a href="{{url_for('get_home')}}"> Back to search</a>

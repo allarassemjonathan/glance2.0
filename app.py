@@ -9,6 +9,9 @@ app = Flask(__name__)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.config['SECRET_KEY'] = 'aquickbrownfoxjumpedoverthelazydog'
 
+dorms = {'HO':'Hopeman', 'KE':'Ketler', 'HI':'Hicks','AL':'Alumni', 'HA':'Harker', 'LI':'Lincoln',
+         'ME':'Memorial', 'MP':'MAP', 'SO':'South MEP', 'NO':'North MEP', 'WE':'West MEP',
+         'Co': 'Not living on campus', 'CH':'Colonial Hall' }
 
 df = pd.read_csv('static/cleantxt.txt', delimiter='\t\t', engine='python')
 df.columns = ['name', 'year', 'room', 'mailroom', 'town', 'state', 'email']
@@ -49,10 +52,8 @@ def get_student(name):
 def get_profile(name):
     frame = df.loc[df['name'].str.contains(name)]
     temp = None
-    dic={'GR':'Graduate', 'FF': 'Freshman', 'FR': 'Freshman', 'SO': 'Sophomore', 'JR':'Junior', 'SR':'Senior'}
-    dorms = {'HO':'Hopeman', 'KE':'Ketler', 'HI':'Hicks','AL':'Alumni', 'HA':'Harker', 'LI':'Lincoln',
-         'ME':'Memorial', 'MP':'MAP', 'SO':'South MEP', 'NO':'North MEP', 'WE':'West MEP',
-         'Co': 'Not living on campus', 'CH':'Colonial Hall' }
+    dic={'GR':'Graduate', 'FF': 'Freshman', 'FR': 'Freshman', 'SO': 'Sophomore', 'JR':'Junior', 'SR':'Senior', 'SS': 'Senior'}
+    gender={'HO':'M', 'KE':'M', 'HI':'M', 'AL':'M', 'HA':'F', 'LI':'M', 'ME':'M', 'MP':'F', 'SO':'F', 'NO':'F', 'WE':'F', 'Co':'UN', 'CH':'UN'}
     for index, row in frame.iterrows():
         state = ''
         if str(row['state']).strip()=='nan':
@@ -61,18 +62,49 @@ def get_profile(name):
             state = row['state']
         temp = student(row['name'], row['year'], row['town'], state, row['email'], row['mailroom'], row['room'])
         roomates = get_roomates(row['room'])
+        if len(roomates)==1:
+            roomates = None
     return render_template('profile.html', student=temp, dic=dic, dorms=dorms, roomates=roomates)
 
 def get_roomates(room):
     students = []
     print(room)
+    has_letters = False
+    new_room=room
     if(room[len(room)-1] in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'):
-        room = room[:-1]
-    frame = df.loc[df['room'].str.contains(room)]
+        new_room = room[:-1]
+        has_letters = True
+    if len(new_room[2:])!=2:
+        frame = df.loc[df['room'].str.contains(new_room)]
+        print(frame)
+    elif len(new_room[2:])==2 and has_letters:
+        frame = df.loc[df['room'].str.contains(new_room)].loc[df['room'].str.match('[A-Z][A-Z][1-9][1-9](A|B)')]
+    elif len(new_room[2:])==2 and not has_letters:
+        frame = df.loc[df['room'].str.contains(new_room)].loc[df['room'].str.endswith(room)]
     for index, row in frame.iterrows():
         students.append(student(row['name'], row['year'], row['town'], row['state'], row['email'], row['mailroom'], row['room']))
     return students
 
+def get_states(key):
+    table = pd.read_csv(f'{key}.csv')
+    states = table['Code'].values
+    return list(states)
+
 @app.route('/population/<string:population>')
 def get_population(population):
-    return render_template('populations.html', population=population)
+    table = pd.read_csv(f'{population}.csv')
+    states = table['Code'].values
+    students = []
+    for index, row in df.iterrows():
+        if row['state'] in states:
+            students.append(student(row['name'], row['year'], row['town'], row['state'], row['email'], row['mailroom'], row['room']))
+    distribution_dorm = {}
+    for state in states:
+        frame = df.loc[df['state']==state]
+        print(frame)
+        for dorm in dorms.keys():
+            if dorms[dorm] in distribution_dorm.keys():
+                distribution_dorm[dorms[dorm]]+= frame.loc[frame['room'].str.contains(dorm)].count()['name']
+            else:
+                distribution_dorm[dorms[dorm]]= frame.loc[frame['room'].str.contains(dorm)].count()['name']
+    return render_template('populations.html', population=population, students=students, length=len(students), dic=distribution_dorm)

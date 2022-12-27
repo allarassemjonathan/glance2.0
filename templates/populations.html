@@ -7,9 +7,39 @@
     <title></title>
 </head>
 <body>
-    <h1>Students from the {{population}}</h1>
+    <div style="display:flex; justify-content: center;">
+        <h2>Students from the {{population}}</h2>
+    </div>
+    <br> 
     <div style="display:flex; justify-content: center; margin-top: 0px;">
         <img src="/static/{{population}}_chart.png" alt="Pie chart of student population" width="600", height="400" >
     </div>
+    <br>
+    <table style="display:flex; justify-content: center;">
+        <tr>
+            <th style="text-align:center; border: 1px solid black; border-collapse: collapse;"> Dorms </th>
+            <th style="text-align:center; border: 1px solid black; border-collapse: collapse;"> Number of students from the {{population}}</th>
+        </tr>
+        {% for dorm in dic.keys()%}
+            <tr>
+                <td style="text-align:center; border: 1px solid black; border-collapse: collapse;">{{dorm}}</td>
+                <td style="text-align:center; border: 1px solid black; border-collapse: collapse;">{{dic[dorm]}}</td> 
+            </tr>
+        {%endfor%}
+    </table>
+    <br>
+    <h3 style="display:flex; justify-content: center; margin-top: 0px;">List of {{length}} students</h3>
+    {% for student in students%}
+    <div style="display:flex; justify-content: center;">
+        <a href="{{ url_for('get_profile', name=student.name)}}">
+            {%if student.name.split()[2]%}
+                {{student.name.split()[1]}} {{student.name.split()[2][0]}}. {{student.name.split()[0][1:-1]}}
+            {%else%}
+                {{student.name.split()[1]}} x. {{student.name.split()[0][1:-1]}}
+            {%endif%}
+        </a> 
+    </div>
+    {% endfor%}
+    <a style="display:flex; justify-content: center;" href="{{url_for('get_home')}}"> Back to search</a>
 </body>
 </html>
