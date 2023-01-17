@@ -15,6 +15,7 @@ dorms = {'HO':'Hopeman', 'KE':'Ketler', 'HI':'Hicks','AL':'Alumni', 'HA':'Harker
 
 df = pd.read_csv('static/cleantxt.txt', delimiter='\t\t', engine='python')
 df.columns = ['name', 'year', 'room', 'mailroom', 'town', 'state', 'email']
+list_dorm = {}
 
 @app.route('/', methods=["GET"])
 def get_home():
@@ -90,9 +91,11 @@ def get_states(key):
     states = table['Code'].values
     return list(states)
 
-@app.route('/temp/dorm')
-def get_temp():
-    return ""
+@app.route('/dorm/<string:population>/<string:dorm>')
+def get_dorm(population, dorm):
+    return render_template('dorm_list.html', population=population,dorm=dorm, list_student=list_dorm[dorm])
+    return list_dorm[population]
+
 
 @app.route('/population/<string:population>')
 def get_population(population):
@@ -105,10 +108,15 @@ def get_population(population):
     distribution_dorm = {}
     for state in states:
         frame = df.loc[df['state']==state]
-        print(frame)
         for dorm in dorms.keys():
             if dorms[dorm] in distribution_dorm.keys():
-                distribution_dorm[dorms[dorm]]+= frame.loc[frame['room'].str.contains(dorm)].count()['name']
+                temp = frame.loc[frame['room'].str.contains(dorm)]
+                print(temp)
+                distribution_dorm[dorms[dorm]]+= temp.count()['name']
+                list_dorm[dorms[dorm]].extend(temp.values.tolist())
             else:
-                distribution_dorm[dorms[dorm]]= frame.loc[frame['room'].str.contains(dorm)].count()['name']
-    return render_template('populations.html', population=population, students=students, length=len(students), dic=distribution_dorm)
+                temp = frame.loc[frame['room'].str.contains(dorm)]
+                print(temp)                
+                distribution_dorm[dorms[dorm]]= temp.count()['name']
+                list_dorm[dorms[dorm]] = temp.values.tolist()
+    return render_template('populations.html', list_dorm=list_dorm, population=population, students=students, length=len(students), dic=distribution_dorm)

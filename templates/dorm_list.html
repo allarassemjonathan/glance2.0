@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Students of {{dorm}} living in {{population}}</title>
+</head>
+<body>
+    <h2>Students of {{dorm}} living in {{population}}</h2>
+    {%for student in list_student%}
+    <div>
+        <a href="{{ url_for('get_profile', name=student[0])}}">
+            {%if student[0].split()[2]%}
+                {{student[0].split()[1]}} {{student[0].split()[2][0]}}. {{student[0].split()[0][1:-1]}}
+            {%else%}
+                {{student[0].split()[1]}} x. {{student[0].split()[0][1:-1]}}
+            {%endif%}
+        </a> 
+    </div>
+{%endfor%}
+</body>
+</html>
