@@ -90,6 +90,10 @@ def get_states(key):
     states = table['Code'].values
     return list(states)
 
+@app.route('/temp/dorm')
+def get_temp():
+    return ""
+
 @app.route('/population/<string:population>')
 def get_population(population):
     table = pd.read_csv(f'{population}.csv')
